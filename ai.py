@@ -16,15 +16,14 @@ class AI:
 
         return guess_row, guess_col
 
-    def guess_random(self, length=None):
+    def guess_random(self):
         while True:
-            guess_row, guess_col = random.choice(range(self.game.board_size)), random.choice(range(self.game.board_size))
-            if length and (guess_row + guess_col) % length != 0:
-                continue
+            guess_row = random.randint(0, self.game.board_size - 1)
+            guess_col = random.randint(0, self.game.board_size - 1)
             if self.game.shot_map[guess_row][guess_col] == 0:
                 break
-
         return guess_row, guess_col
+
 
     def add_adjacent_targets(self, guess_row, guess_col):
         potential_targets = [(guess_row + 1, guess_col), (guess_row, guess_col + 1),
