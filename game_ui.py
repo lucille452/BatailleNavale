@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import random
 
-class GrilleUI:
+class Grille:
     def __init__(self, parent, label_text, row_offset):
         self.parent = parent
         self.label_text = label_text
@@ -47,48 +47,86 @@ class Navires:
             "Patrouilleur": 2
         }
 
-class NavireButton(tk.Button):
+class NavireWidget(tk.Frame):
     def __init__(self, master, navire_type, navire_length):
+        tk.Frame.__init__(self, master)
         self.navire_type = navire_type
         self.navire_length = navire_length
-        tk.Button.__init__(self, master, text=f"{navire_type} ({navire_length})", width=15, height=1, bg='darkgray', fg='white', font=('Times New Roman', 10))
-        self.configure(command=self.place_ship)
+        self.configure(width=100, height=35)
+        self.pack_propagate(False)
+
+        self.button = tk.Button(self, text=f"{navire_type} ({navire_length})", width=15, height=1, bg='darkgray', fg='black', font=('Roboto', 10))
+        self.button.configure(command=self.place_ship)
+        self.button.pack(expand=True, fill=tk.BOTH)
 
     def place_ship(self):
         print(f"Vous avez sélectionné le {self.navire_type} ({self.navire_length})")
         # Vous pouvez ajouter ici le code pour placer le navire sur la grille de jeu.
 
-class NavireFrame(tk.Frame):
-    def __init__(self, master, navire_type, navire_length):
-        tk.Frame.__init__(self, master)
-        self.navire_type = navire_type
-        self.navire_length = navire_length
-        self.configure(width=100, height=40)  # Ajustez la taille selon vos besoins
-        self.pack_propagate(False)  # Empêcher le cadre de changer de taille automatiquement
+class JoueurNavires(Navires):
+    def __init__(self):
+        super().__init__()
 
-        self.button = NavireButton(self, navire_type, navire_length)
-        self.button.pack(expand=True, fill=tk.BOTH)  # Remplir le cadre avec le bouton
+class AdversaireNavires(Navires):
+    def __init__(self):
+        super().__init__()
 
-class BatailleNavaleUI:
+class NaviresManager:
+    @staticmethod
+    def create_navire_buttons(parent_frame):
+        navires = JoueurNavires().navires_a_placer
+        for navire_type, navire_length in navires.items():
+            navire_widget = NavireWidget(parent_frame, navire_type, navire_length)
+            navire_widget.pack(pady=5)
+
+class GameStateManager:
+    @staticmethod
+    def update_navires_restants(label, navires_restants):
+        label.config(text=f"Navires restants: {navires_restants}")
+
+    @staticmethod
+    def update_tirs_reussis(label, tirs_reussis):
+        label.config(text=f"Tirs réussis: {tirs_reussis}")
+
+class BatailleNavale:
     def __init__(self, master):
         self.master = master
         self.master.title("Bataille Navale")
-        self.grille_tirs = GrilleUI(self.master, "Tirs sur l'adversaire", 0)
-        self.grille_navires_joueur = GrilleUI(self.master, "Navires du joueur", 1)
+        
+        # Création des grilles
+        self.grille_tirs = Grille(self.master, "Tirs sur l'adversaire", 0)
+        self.grille_navires_joueur = Grille(self.master, "Navires du joueur", 1)
 
         # Création d'un cadre pour les boutons des navires du joueur
         self.navires_frame = tk.Frame(self.master)
         self.navires_frame.grid(row=1, column=1, padx=20, pady=20)
 
-        self.create_navire_buttons()
+        NaviresManager.create_navire_buttons(self.navires_frame)
 
-    def create_navire_buttons(self):
-        navires = Navires().navires_a_placer
-        for navire_type, navire_length in navires.items():
-            navire_frame = NavireFrame(self.navires_frame, navire_type, navire_length)
-            navire_frame.pack(pady=5)
+        # Création d'un cadre pour afficher les informations sur l'état du jeu
+        self.info_frame = tk.Frame(self.master)
+        self.info_frame.grid(row=0, column=1, padx=20, pady=20)
+
+        # Création des étiquettes pour afficher les informations sur l'état du jeu
+        self.navires_restants_joueur_label = tk.Label(self.info_frame, text="Navires restants (joueur): 5")
+        self.navires_restants_joueur_label.pack(pady=5)
+
+        self.navires_restants_adversaire_label = tk.Label(self.info_frame, text="Navires restants (adversaire): 5")
+        self.navires_restants_adversaire_label.pack(pady=5)
+
+        self.tirs_reussis_label = tk.Label(self.info_frame, text="Tirs réussis: 0")
+        self.tirs_reussis_label.pack(pady=5)
+
+    def update_navires_restants_joueur(self, navires_restants):
+        GameStateManager.update_navires_restants(self.navires_restants_joueur_label, navires_restants)
+
+    def update_navires_restants_adversaire(self, navires_restants):
+        GameStateManager.update_navires_restants(self.navires_restants_adversaire_label, navires_restants)
+
+    def update_tirs_reussis(self, tirs_reussis):
+        GameStateManager.update_tirs_reussis(self.tirs_reussis_label, tirs_reussis)
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = BatailleNavaleUI(root)
+    app = BatailleNavale(root)
     root.mainloop()
