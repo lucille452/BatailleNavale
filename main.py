@@ -1,7 +1,8 @@
-from gui import GameGUI
+from gui import BattleShipGUI
 import tkinter as tk
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     root = tk.Tk()
-    app = GameGUI(root)
+    root.title("BattleShip Game")
+    app = BattleShipGUI(root)
     root.mainloop()
