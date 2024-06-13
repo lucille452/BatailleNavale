@@ -10,8 +10,9 @@ class Grille:
     grille = []
     type_grille = Type.NAVIRES
 
-    def __init__(self, grille, type_grille):
-        self.grille = grille
+    def __init__(self, type_grille):
+        for i in range(10):
+            self.grille.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
         self.type_grille = type_grille
 
     # placement navire
@@ -39,6 +40,6 @@ class Grille:
     # def is_couler(self):
 
 
-# grille = Grille([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]], Type.NAVIRES)
+# grille = Grille(Type.NAVIRES)
 # grille.place_navire_vertical(0, 0, 2)
 # print(grille.get_grille())
