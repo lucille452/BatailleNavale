@@ -1,10 +1,7 @@
-import tkinter as tk
 import random
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-#from game import Game
-
 
 class AI:
     def __init__(self, game):
@@ -15,16 +12,21 @@ class AI:
         self.df = pd.DataFrame(columns=['game', 'move', 'result'])
         self.weighted_map = self.create_weighted_map()
 
+    #Crée une carte pondérée pour prioriser les bords et les coins du plateau de jeu.
     def create_weighted_map(self):
-        weighted_map = np.ones((self.game.board_size, self.game.board_size))
-        for i in range(self.game.board_size):
-            for j in range(self.game.board_size):
-                if i == 0 or i == self.game.board_size - 1 or j == 0 or j == self.game.board_size - 1:
-                    weighted_map[i][j] += 1  # Edges
-                if (i == 0 or i == self.game.board_size - 1) and (j == 0 or j == self.game.board_size - 1):
-                    weighted_map[i][j] += 1  # Corners
+        size = self.game.board_size
+        weighted_map = np.ones((size, size))
+        weighted_map[0, :] += 1
+        weighted_map[-1, :] += 1
+        weighted_map[:, 0] += 1
+        weighted_map[:, -1] += 1
+        weighted_map[0, 0] += 1
+        weighted_map[0, -1] += 1
+        weighted_map[-1, 0] += 1
+        weighted_map[-1, -1] += 1
         return weighted_map
 
+    #Si l'IA n'a pas de cibles, elle fait un mouvement aléatoire. Sinon, elle attaque les cibles adjacentes.
     def make_move(self):
         if not self.targets:
             guess_row, guess_col = self.guess_random()
@@ -38,35 +40,33 @@ class AI:
 
         return guess_row, guess_col
 
+    #Sélectionne un mouvement aléatoire parmi ceux disponibles, avec une préférence pour les positions pondérées.
     def guess_random(self):
-        flat_indices = np.argwhere(self.game.shot_map == 0)
-        weighted_indices = [index for index in flat_indices if self.weighted_map[index[0], index[1]] > 1]
-        if weighted_indices:
-            guess_row, guess_col = random.choice(weighted_indices)
+        available_moves = np.argwhere(self.game.shot_map == 0)
+        weighted_moves = [move for move in available_moves if self.weighted_map[tuple(move)] > 1]
+        if weighted_moves:
+            guess = random.choice(weighted_moves)
         else:
-            guess_row, guess_col = random.choice(flat_indices)
-        return guess_row, guess_col
+            guess = random.choice(available_moves)
+        return tuple(guess)
 
-    def add_adjacent_targets(self, guess_row, guess_col):
-        potential_targets = [(guess_row + 1, guess_col), (guess_row, guess_col + 1),
-                             (guess_row - 1, guess_col), (guess_row, guess_col - 1)]
-        for target_row, target_col in potential_targets:
-            if (0 <= target_row < self.game.board_size) and \
-                    (0 <= target_col < self.game.board_size) and \
-                    (self.game.shot_map[target_row][target_col] == 0) and \
-                    ((target_row, target_col) not in self.targets):
-                self.targets.append((target_row, target_col))
+    #Ajoute les cases adjacentes d'un coup réussi à la liste des cibles
+    def add_adjacent_targets(self, row, col):
+        potential_targets = [(row + 1, col), (row - 1, col), (row, col + 1), (row, col - 1)]
+        self.targets.extend(
+            (r, c) for r, c in potential_targets
+            if 0 <= r < self.game.board_size and 0 <= c < self.game.board_size and self.game.shot_map[r, c] == 0
+        )
 
+    #Enregistre chaque mouvement et son résultat dans un DataFrame pour analyse ultérieure.
     def update_history(self, move, hit):
         self.df = self.df.append({'game': len(self.df) // 100, 'move': move, 'result': hit}, ignore_index=True)
 
+    #Génère un graphique des performances de l'IA au fil des jeux
     def analyze_history(self):
-        game_outcomes = self.df.groupby('game')['result'].sum()
-        plt.plot(game_outcomes)
+        hits_per_game = self.df.groupby('game')['result'].sum()
+        plt.plot(hits_per_game)
         plt.title('AI Performance Over Time')
         plt.xlabel('Game')
         plt.ylabel('Hits')
         plt.show()
-
-    def adjust_weighted_map(self):
-        self.weighted_map += self.history / np.max(self.history)  # Normalize history to [0, 1]
