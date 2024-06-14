@@ -1,9 +1,12 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from Game import Game
+
 
 # Classe pour créer et gérer une grille de jeu
 class Grille:
     def __init__(self, parent, label_text, row_offset):
+        self.buttons = None
+        self.frame = None
         self.parent = parent
         self.label_text = label_text
         self.row_offset = row_offset
@@ -20,15 +23,17 @@ class Grille:
         # Ajout des étiquettes pour les colonnes (A-J)
         letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
         for col, letter in enumerate(letters):
-            tk.Label(self.frame, text=letter).grid(row=1, column=col+1)
+            tk.Label(self.frame, text=letter).grid(row=1, column=col + 1)
 
         # Ajout des étiquettes pour les lignes (1-10)
         for row in range(10):
-            tk.Label(self.frame, text=str(row+1)).grid(row=row+2, column=0)
+            tk.Label(self.frame, text=str(row + 1)).grid(row=row + 2, column=0)
 
         # Création des boutons de la grille
-        self.buttons = [[tk.Button(self.frame, text=' ', width=2, height=1, bg='light blue').grid(row=row+2, column=col+1)
-                        for col in range(10)] for row in range(10)]
+        self.buttons = [
+            [tk.Button(self.frame, text=' ', width=2, height=1, bg='light blue').grid(row=row + 2, column=col + 1)
+             for col in range(10)] for row in range(10)]
+
 
 # Classe pour gérer les navires à placer
 class Navires:
@@ -41,6 +46,7 @@ class Navires:
             "Patrouilleur": 2
         }
 
+
 # Widget pour chaque navire
 class NavireWidget(tk.Frame):
     def __init__(self, master, navire_type, navire_length):
@@ -48,13 +54,15 @@ class NavireWidget(tk.Frame):
         self.navire_type = navire_type
         self.navire_length = navire_length
         self.pack_propagate(False)
-        self.button = tk.Button(self, text=f"{navire_type} ({navire_length})", width=15, height=1, bg='darkgray', fg='black', font=('Roboto', 10), command=self.place_ship)
+        self.button = tk.Button(self, text=f"{navire_type} ({navire_length})", width=15, height=1, bg='darkgray',
+                                fg='black', font=('Roboto', 10), command=self.place_ship)
         self.button.pack(expand=True, fill=tk.BOTH)
 
     # Méthode appelée lors de la sélection d'un navire
     def place_ship(self):
         print(f"Vous avez sélectionné le {self.navire_type} ({self.navire_length})")
         # Vous pouvez ajouter ici le code pour placer le navire sur la grille de jeu.
+
 
 # Classe pour gérer les navires du joueur
 class NaviresManager:
@@ -64,21 +72,27 @@ class NaviresManager:
         for navire_type, navire_length in navires.items():
             NavireWidget(parent_frame, navire_type, navire_length).pack(pady=5)
 
+
 # Classe pour gérer l'état du jeu
 class GameStateManager:
     @staticmethod
     def update_label(label, text):
         label.config(text=text)
 
+
 # Classe principale pour la gestion du jeu
 class BatailleNavale:
     def __init__(self, master):
         self.master = master
         self.master.title("Bataille Navale")
-        
-        # Création des grilles
+
+        # Création des grilles visuelles
         self.grille_tirs = Grille(self.master, "Tirs sur l'adversaire", 0)
         self.grille_navires_joueur = Grille(self.master, "Navires du joueur", 1)
+
+        # création des joueurs / grilles / navires back
+        self.game = Game()
+        self.game.get_ia().get_grille_tirs().get_grille()
 
         # Création d'un cadre pour les boutons des navires du joueur
         self.navires_frame = tk.Frame(self.master)
@@ -108,6 +122,7 @@ class BatailleNavale:
 
     def update_tirs_reussis(self, tirs_reussis):
         GameStateManager.update_label(self.tirs_reussis_label, f"Tirs réussis: {tirs_reussis}")
+
 
 if __name__ == "__main__":
     root = tk.Tk()

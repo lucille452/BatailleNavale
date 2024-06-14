@@ -11,7 +11,6 @@ class Navire:
     taille = 0
     etat = Etat.PLACER
     nbr_toucher = 0
-    image = 'on verra'
 
     def __init__(self, taille):
         self.taille = taille
