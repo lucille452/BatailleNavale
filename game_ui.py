@@ -121,10 +121,10 @@ class BatailleNavale:
     def toggle_place_navires_mode(self):
         self.place_navires_mode = not self.place_navires_mode
         if self.place_navires_mode:
-            messagebox.showinfo("Placement de Navires", "Cliquez sur la grille pour placer vos navires.")
+            # messagebox.showinfo("Placement de Navires", "Cliquez sur la grille pour placer vos navires.")
             self.update_navire_combobox()
-        else:
-            messagebox.showinfo("Fin du Placement", "Tous les navires ont été placés.")
+        # else:
+        #     messagebox.showinfo("Fin du Placement", "Tous les navires ont été placés.")
 
     def update_navire_combobox(self):
         self.navire_combobox['values'] = [navire.nom for navire in self.navires_a_placer]
@@ -135,8 +135,8 @@ class BatailleNavale:
             self.place_navire(grille, row, col)
         elif grille == self.grille_tirs:
             self.tirer(row, col)
-        else:
-            messagebox.showinfo("Clic", f"Vous avez cliqué sur la case ({row + 1}, {chr(ord('A') + col)})")
+        # else:
+        #     messagebox.showinfo("Clic", f"Vous avez cliqué sur la case ({row + 1}, {chr(ord('A') + col)})")
 
     def place_navire(self, grille, row, col):
         navire_selectionne = self.navire_var.get()
@@ -146,37 +146,37 @@ class BatailleNavale:
                 positions = navire.placer(row, col, self.orientation_var.get())
                 self.navires_places.extend(positions)
                 self.update_grille(grille, positions, navire)
-            else:
-                messagebox.showinfo("Placement", "Placement invalide. Choisissez une autre case.")
-        else:
-            messagebox.showinfo("Placement", "Veuillez sélectionner un navire à placer.")
+        #     else:
+        #         messagebox.showinfo("Placement", "Placement invalide. Choisissez une autre case.")
+        # else:
+        #     messagebox.showinfo("Placement", "Veuillez sélectionner un navire à placer.")
 
     def update_grille(self, grille, positions, navire):
         for row, col in positions:
             grille.update_button(row, col, "grey")
             grille.disable_button(row, col)
         
-        messagebox.showinfo("Placement", f"Vous avez placé un {navire.nom}.")
+        # messagebox.showinfo("Placement", f"Vous avez placé un {navire.nom}.")
         self.navires_a_placer.remove(navire)
         self.update_navire_combobox()
         if not self.navires_a_placer:
             self.place_navires_mode = False
-            messagebox.showinfo("Fin du Placement", "Tous les navires ont été placés.")
+            # messagebox.showinfo("Fin du Placement", "Tous les navires ont été placés.")
             self.place_navires_button.config(state="disabled")
 
     def tirer(self, row, col):
         if (row, col) in self.tirs_effectues:
-            messagebox.showinfo("Tir", "Vous avez déjà tiré sur cette case.")
+            # messagebox.showinfo("Tir", "Vous avez déjà tiré sur cette case.")
             return
 
         self.tirs_effectues.append((row, col))
         button = self.grille_tirs.buttons[row][col]
         if (row, col) in self.navires_places:
             button.config(bg="red")
-            messagebox.showinfo("Tir", "Touché !")
+            # messagebox.showinfo("Tir", "Touché !")
         else:
             button.config(bg="white")
-            messagebox.showinfo("Tir", "Manqué !")
+            # messagebox.showinfo("Tir", "Manqué !")
 
 # Point d'entrée principal
 if __name__ == "__main__":
