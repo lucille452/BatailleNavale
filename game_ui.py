@@ -72,11 +72,11 @@ class BatailleNavale:
         
         self.place_navires_mode = False
         self.navires_a_placer = [
-            Navire(5, "Porte-avions"),
-            Navire(4, "Cuirassé"),
-            Navire(3, "Destroyer"),
-            Navire(3, "Sous-marin"),
-            Navire(2, "Patrouilleur")
+            Navire(5, "Porte-avions (5)"),
+            Navire(4, "Cuirassé (4)"),
+            Navire(3, "Destroyer (3)"),
+            Navire(3, "Sous-marin (3)"),
+            Navire(2, "Patrouilleur (2)")
         ]
         self.navires_places = []
         self.tirs_effectues = []  # Positions des tirs effectués
