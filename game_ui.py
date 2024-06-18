@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 
+
 # Classe Navire
 class Navire:
     def __init__(self, taille, nom):
@@ -27,6 +28,7 @@ class Navire:
     def coule(self, tirs_effectues):
         return all(pos in tirs_effectues for pos in self.positions)
 
+
 # Classe Grille
 class Grille:
     def __init__(self, parent, label_text, row_offset, click_handler):
@@ -40,7 +42,11 @@ class Grille:
 
     def create_grille(self):
         self.frame = tk.Frame(self.parent)
-        self.frame.grid(row=self.row_offset, column=0, padx=20, pady=20)
+        if self.row_offset == 0:
+            self.frame.grid(row=self.row_offset, column=0, padx=20, pady=20)
+
+        elif self.row_offset == 1:
+            self.frame.grid(row=self.row_offset, column=0, padx=20, pady=20, rowspan=10)
 
         tk.Label(self.frame, text=self.label_text).grid(row=0, columnspan=11)
 
@@ -63,6 +69,7 @@ class Grille:
     def disable_button(self, row, col):
         button = self.buttons[row][col]
         button.config(state="disabled")
+
 
 # Classe principale pour la gestion du jeu
 class BatailleNavale:
@@ -106,17 +113,17 @@ class BatailleNavale:
 
         # Bouton pour passer en mode placement de navires
         self.place_navires_button = tk.Button(self.master, text="Placer Navires", command=self.toggle_place_navires_mode)
-        self.place_navires_button.grid(row=2, column=0, padx=20, pady=10)
+        self.place_navires_button.grid(row=5, column=1, padx=20, pady=10)
 
         # Option pour choisir l'orientation
         self.orientation_var = tk.StringVar(self.master, "horizontal")
         self.orientation_menu = tk.OptionMenu(self.master, self.orientation_var, "horizontal", "vertical")
-        self.orientation_menu.grid(row=3, column=0, padx=20, pady=10)
+        self.orientation_menu.grid(row=6, column=1, padx=20, pady=10)
 
         # Combobox pour choisir le navire à placer
         self.navire_var = tk.StringVar(self.master)
         self.navire_combobox = ttk.Combobox(self.master, textvariable=self.navire_var)
-        self.navire_combobox.grid(row=4, column=0, padx=20, pady=10)
+        self.navire_combobox.grid(row=7, column=1, padx=20, pady=10)
 
     def toggle_place_navires_mode(self):
         self.place_navires_mode = not self.place_navires_mode
@@ -177,6 +184,7 @@ class BatailleNavale:
         else:
             button.config(bg="white")
             # messagebox.showinfo("Tir", "Manqué !")
+
 
 # Point d'entrée principal
 if __name__ == "__main__":
