@@ -77,7 +77,7 @@ class BatailleNavale:
         self.master = master
         self.master.title("Bataille Navale")
         
-        self.place_navires_mode = False
+        self.place_navires_mode = True
         self.navires_a_placer = [
             Navire(5, "Porte-avions (5)"),
             Navire(4, "Cuirassé (4)"),
@@ -112,8 +112,8 @@ class BatailleNavale:
         self.tirs_reussis_label.pack(pady=5)
 
         # Bouton pour passer en mode placement de navires
-        self.place_navires_button = tk.Button(self.master, text="Placer Navires", command=self.toggle_place_navires_mode)
-        self.place_navires_button.grid(row=5, column=1, padx=20, pady=10)
+        # self.place_navires_button = tk.Button(self.master, text="Placer Navires", command=self.toggle_place_navires_mode)
+        # self.place_navires_button.grid(row=5, column=1, padx=20, pady=10)
 
         # Option pour choisir l'orientation
         self.orientation_var = tk.StringVar(self.master, "horizontal")
@@ -169,7 +169,7 @@ class BatailleNavale:
         if not self.navires_a_placer:
             self.place_navires_mode = False
             # messagebox.showinfo("Fin du Placement", "Tous les navires ont été placés.")
-            self.place_navires_button.config(state="disabled")
+            # self.place_navires_button.config(state="disabled")
 
     def tirer(self, row, col):
         if (row, col) in self.tirs_effectues:
