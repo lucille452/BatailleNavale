@@ -16,14 +16,14 @@ class Grille:
         self.type_grille = type_grille
 
     # placement navire
-    def place_navire_horizontal(self, line, start_column, end_column):
+    def place_navire_horizontal(self, line, start_column, length):
         for lineGrille in range(len(self.grille) + 1):
             if lineGrille == line:
-                for column in range(start_column, end_column + 1):
+                for column in range(start_column, start_column + length):
                     self.grille[line][column] = 1
 
-    def place_navire_vertical(self, column, start_line, end_line):
-        for line in range(start_line, end_line + 1):
+    def place_navire_vertical(self, column, start_line, length):
+        for line in range(start_line, start_line + length):
             self.grille[line][column] = 1
 
     def get_grille(self):

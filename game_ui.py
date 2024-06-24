@@ -1,74 +1,8 @@
 import tkinter as tk
+from NavireFront import NavireFront
+from GrilleFront import GrilleFront
+from Game import Game
 from tkinter import ttk, messagebox
-
-
-# Classe Navire
-class Navire:
-    def __init__(self, taille, nom):
-        self.taille = taille
-        self.nom = nom
-        self.positions = []
-
-    def placer(self, row, col, orientation):
-        positions = []
-        if orientation == "horizontal":
-            positions = [(row, col + i) for i in range(self.taille)]
-        else:  # Vertical
-            positions = [(row + i, col) for i in range(self.taille)]
-        
-        self.positions = positions
-        return positions
-
-    def placement_valide(self, row, col, orientation):
-        if orientation == "horizontal":
-            return all(0 <= col + i < 10 for i in range(self.taille))
-        else:  # Vertical
-            return all(0 <= row + i < 10 for i in range(self.taille))
-
-    def coule(self, tirs_effectues):
-        return all(pos in tirs_effectues for pos in self.positions)
-
-
-# Classe Grille
-class Grille:
-    def __init__(self, parent, label_text, row_offset, click_handler):
-        self.buttons = []
-        self.frame = None
-        self.parent = parent
-        self.label_text = label_text
-        self.row_offset = row_offset
-        self.click_handler = click_handler
-        self.create_grille()
-
-    def create_grille(self):
-        self.frame = tk.Frame(self.parent)
-        if self.row_offset == 0:
-            self.frame.grid(row=self.row_offset, column=0, padx=20, pady=20)
-
-        elif self.row_offset == 1:
-            self.frame.grid(row=self.row_offset, column=0, padx=20, pady=20, rowspan=10)
-
-        tk.Label(self.frame, text=self.label_text).grid(row=0, columnspan=11)
-
-        letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
-        for col, letter in enumerate(letters):
-            tk.Label(self.frame, text=letter).grid(row=1, column=col+1)
-
-        for row in range(10):
-            tk.Label(self.frame, text=str(row+1)).grid(row=row+2, column=0)
-
-        self.buttons = [[tk.Button(self.frame, text=' ', width=2, height=1, bg='light blue', command=lambda r=row, c=col: self.click_handler(self, r, c)) for col in range(10)] for row in range(10)]
-        for row in range(10):
-            for col in range(10):
-                self.buttons[row][col].grid(row=row+2, column=col+1)
-
-    def update_button(self, row, col, color):
-        button = self.buttons[row][col]
-        button.config(bg=color)
-
-    def disable_button(self, row, col):
-        button = self.buttons[row][col]
-        button.config(state="disabled")
 
 
 # Classe principale pour la gestion du jeu
@@ -79,23 +13,24 @@ class BatailleNavale:
 
         self.place_navires_mode = True
         self.navires_a_placer = [
-            Navire(5, "Porte-avions (5)"),
-            Navire(4, "Cuirassé (4)"),
-            Navire(3, "Destroyer (3)"),
-            Navire(3, "Sous-marin (3)"),
-            Navire(2, "Patrouilleur (2)")
+            NavireFront(5, "Porte-avions (5)"),
+            NavireFront(4, "Cuirassé (4)"),
+            NavireFront(3, "Destroyer (3)"),
+            NavireFront(3, "Sous-marin (3)"),
+            NavireFront(2, "Patrouilleur (2)")
         ]
         self.navires_places = []
         self.tirs_effectues = []  # Positions des tirs effectués
         self.orientation = "horizontal"  # Orientation par défaut
 
         # Création des grilles visuelles
-        self.grille_tirs = Grille(self.master, "Tirs sur l'adversaire", 0, self.on_button_click)
-        self.grille_navires_joueur = Grille(self.master, "Navires du joueur", 1, self.on_button_click)
+        self.grille_tirs = GrilleFront(self.master, "Tirs sur l'adversaire", 0, self.on_button_click)
+        self.grille_navires_joueur = GrilleFront(self.master, "Navires du joueur", 1, self.on_button_click)
 
-        # # Création d'un cadre pour les boutons des navires du joueur
-        # self.navires_frame = tk.Frame(self.master)
-        # self.navires_frame.grid(row=1, column=1, padx=20, pady=20)
+        # Création des joueurs / Grilles / Navires back
+        game = Game()
+        self.ia = game.get_ia()
+        self.joueur = game.get_joueur()
 
         # Création d'un cadre pour afficher les informations sur l'état du jeu
         self.info_frame = tk.Frame(self.master)
@@ -110,10 +45,7 @@ class BatailleNavale:
 
         self.tirs_reussis_label = tk.Label(self.info_frame, text="Tirs réussis: 0")
         self.tirs_reussis_label.pack(pady=5)
-
-        # Bouton pour passer en mode placement de navires
-        # self.place_navires_button = tk.Button(self.master, text="Placer Navires", command=self.toggle_place_navires_mode)
-        # self.place_navires_button.grid(row=5, column=1, padx=20, pady=10)
+        self.tirs_reussis = 0
 
         # Option pour choisir l'orientation
         self.orientation_var = tk.StringVar(self.master, "horizontal")
@@ -125,14 +57,8 @@ class BatailleNavale:
         self.navire_combobox = ttk.Combobox(self.master, textvariable=self.navire_var)
         self.navire_combobox.grid(row=7, column=1, padx=20, pady=10)
 
-    # def toggle_place_navires_mode(self):
-    #     self.place_navires_mode = not self.place_navires_mode
-    #     if self.place_navires_mode:
-            # messagebox.showinfo("Placement de Navires", "Cliquez sur la grille pour placer vos navires.")
         # Mettre à jour la combobox avec les navires disponibles
         self.update_navire_combobox()
-        # else:
-        #     messagebox.showinfo("Fin du Placement", "Tous les navires ont été placés.")
 
     def update_navire_combobox(self):
         self.navire_combobox['values'] = [navire.nom for navire in self.navires_a_placer]
@@ -149,14 +75,18 @@ class BatailleNavale:
         if navire_selectionne:
             navire = next((navire for navire in self.navires_a_placer if navire.nom == navire_selectionne), None)
             if navire and navire.placement_valide(row, col, self.orientation_var.get()):
-                positions = navire.placer(row, col, self.orientation_var.get())
-                self.navires_places.extend(positions)
-                self.update_grille(grille, positions, navire)
+                if self.orientation_var.get() == 'horizontal':
+                    self.joueur.grille_navires.place_navire_horizontal(row, col, navire.taille)
+                elif self.orientation_var.get() == 'vertical':
+                    self.joueur.grille_navires.place_navire_vertical(col, row, navire.taille)
+                self.update_grille(grille, self.joueur.get_grille_navires(), navire)
 
-    def update_grille(self, grille, positions, navire):
-        for row, col in positions:
-            grille.update_button(row, col, "grey")
-            grille.disable_button(row, col)
+    def update_grille(self, grille, grille_joueur, navire):
+        for row in range(len(grille_joueur.grille)):
+            for col in range(len(grille_joueur.grille[row])):
+                if grille_joueur.grille[row][col] == 1:
+                    grille.update_button(row, col, "grey")
+                    grille.disable_button(row, col)
 
         self.navires_a_placer.remove(navire)
         self.update_navire_combobox()
@@ -173,14 +103,15 @@ class BatailleNavale:
         button = self.grille_tirs.buttons[row][col]
         if (row, col) in self.navires_places:
             button.config(bg="red")
-            self.tirs_reussis_label.config(text=f"Tirs réussis: {len(self.tirs_effectues)}")
-            if self.est_coule(row, col):
+            self.tirs_reussis += 1
+            self.tirs_reussis_label.config(text=f"Tirs réussis: {self.tirs_reussis}")
+            if self.is_coule(row, col):
                 messagebox.showinfo("Tir", "Touché coulé !")
         else:
             button.config(bg="white")
             messagebox.showinfo("Tir", "Manqué !")
 
-    def est_coule(self, row, col):
+    def is_coule(self, row, col):
         for navire in self.navires_places:
             if (row, col) in navire.positions:
                 if navire.coule(self.tirs_effectues):
