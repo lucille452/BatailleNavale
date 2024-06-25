@@ -81,12 +81,12 @@ class BatailleNavale:
                     self.joueur.grille_navires.place_navire_vertical(col, row, navire.taille)
                 self.update_grille(grille, self.joueur.get_grille_navires(), navire)
 
-    def update_grille(self, grille, grille_joueur, navire):
+    def update_grille(self, grille_front, grille_joueur, navire):
         for row in range(len(grille_joueur.grille)):
             for col in range(len(grille_joueur.grille[row])):
                 if grille_joueur.grille[row][col] == 1:
-                    grille.update_button(row, col, "grey")
-                    grille.disable_button(row, col)
+                    grille_front.update_button(row, col, "grey")
+                    grille_front.disable_button(row, col)
 
         self.navires_a_placer.remove(navire)
         self.update_navire_combobox()

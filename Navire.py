@@ -24,3 +24,5 @@ class Navire:
     def get_etat(self):
         return self.etat
 
+    def get_taille(self):
+        return self.taille

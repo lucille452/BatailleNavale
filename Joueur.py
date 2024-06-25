@@ -3,8 +3,7 @@ from Grille import Grille, Type
 
 
 class Joueur:
-    grille_navires = Grille(Type.NAVIRES)
-    grille_tirs = Grille(Type.TIRS)
+    grille = Grille()
     list_navires = []
 
     def __init__(self):
@@ -19,11 +18,8 @@ class Joueur:
         self.list_navires.append(navire3)
         self.list_navires.append(navire4)
 
-    def get_grille_tirs(self):
-        return self.grille_tirs
-
-    def get_grille_navires(self):
-        return self.grille_navires
+    def get_grille(self):
+        return self.grille
 
     def get_list_navires(self):
         return self.list_navires

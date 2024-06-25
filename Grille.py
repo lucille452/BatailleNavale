@@ -1,19 +1,9 @@
-from enum import Enum
-
-
-class Type(Enum):
-    NAVIRES = 1
-    TIRS = 2
-
-
 class Grille:
     grille = []
-    type_grille = Type.NAVIRES
 
-    def __init__(self, type_grille):
+    def __init__(self):
         for i in range(10):
             self.grille.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        self.type_grille = type_grille
 
     # placement navire
     def place_navire_horizontal(self, line, start_column, length):
@@ -28,9 +18,6 @@ class Grille:
 
     def get_grille(self):
         return self.grille
-
-    def get_type_grille(self):
-        return self.type_grille
 
     # istoucher
     def is_touche(self, position_line, position_column):
