@@ -1,7 +1,7 @@
 import tkinter as tk
 from NavireFront import NavireFront
 from GrilleFront import GrilleFront
-from Game import Game
+from Gameb import Gameb
 from tkinter import ttk, messagebox
 
 
@@ -29,7 +29,7 @@ class BatailleNavale:
         self.grille_joueur = GrilleFront(self.master, "grille Navires du joueur", 1, self.on_button_click)
 
         # Création des joueurs / Grilles / Navires back
-        game = Game()
+        game = Gameb()
         self.ia = game.get_ia()
         self.joueur = game.get_joueur()
 

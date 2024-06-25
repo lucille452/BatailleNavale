@@ -3,7 +3,7 @@ import random
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from ai import AI
+from ia import IA
 
 class Game:
     def __init__(self, board_size=10):
@@ -11,7 +11,7 @@ class Game:
         self.ship_sizes = [2, 3, 3, 4, 5]
         self.ship_map = np.zeros((board_size, board_size), dtype=int)
         self.shot_map = np.zeros((board_size, board_size), dtype=int)
-        self.ai = AI(self)
+        self.ai = IA(self)
 
     def place_ships(self):
         for ship_size in self.ship_sizes:

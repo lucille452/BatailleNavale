@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-class AI:
+class IA:
     def __init__(self, game):
         self.game = game
         self.targets = []
