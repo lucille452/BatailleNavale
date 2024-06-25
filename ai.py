@@ -11,6 +11,8 @@ class AI:
         self.history = np.zeros((game.board_size, game.board_size))
         self.df = pd.DataFrame(columns=['game', 'move', 'result'])
         self.weighted_map = self.create_weighted_map()
+        self.game.shot_map = np.zeros((self.game.board_size, self.game.board_size))
+
 
     #Crée une carte pondérée pour prioriser les bords et les coins du plateau de jeu.
     def create_weighted_map(self):
@@ -57,6 +59,11 @@ class AI:
             (r, c) for r, c in potential_targets
             if 0 <= r < self.game.board_size and 0 <= c < self.game.board_size and self.game.shot_map[r, c] == 0
         )
+    
+    #mettre à jour carte des tirs
+    def update_shot_map(self, move):
+        row, col = move
+        self.game.shot_map[row, col] = 1
 
     #Enregistre chaque mouvement et son résultat dans un DataFrame pour analyse ultérieure.
     def update_history(self, move, hit):
@@ -70,3 +77,11 @@ class AI:
         plt.xlabel('Game')
         plt.ylabel('Hits')
         plt.show()
+    
+    #fonction pour reinisialisé l'IA entre les parties
+    # def reset(self):
+    # self.targets = []
+    # self.prob_map = np.zeros((self.game.board_size, self.game.board_size))
+    # self.history = np.zeros((self.game.board_size, self.game.board_size))
+    # self.df = pd.DataFrame(columns=['game', 'move', 'result'])
+    # self.weighted_map = self.create_weighted_map()
