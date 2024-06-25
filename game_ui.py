@@ -24,8 +24,9 @@ class BatailleNavale:
         self.orientation = "horizontal"  # Orientation par défaut
 
         # Création des grilles visuelles
-        self.grille_ia = GrilleFront(self.master, "Tirs sur l'adversaire", 0, self.on_button_click)
-        self.grille_joueur = GrilleFront(self.master, "Navires du joueur", 1, self.on_button_click)
+        self.grille_ia = GrilleFront(self.master, "Grille navires ia", 0, self.on_button_click)
+        # self.place_navire_ia(self.grille_ia)
+        self.grille_joueur = GrilleFront(self.master, "grille Navires du joueur", 1, self.on_button_click)
 
         # Création des joueurs / Grilles / Navires back
         game = Game()
