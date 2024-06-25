@@ -20,8 +20,14 @@ class Grille:
         return self.grille
 
     # istoucher
-    def is_touche(self, position_line, position_column):
+    def set_touche(self, position_line, position_column):
         self.grille[position_line][position_column] = 2
+
+    def is_touche(self, position_line, position_column):
+        if self.grille[position_line][position_column] == 1:
+            return True
+        else:
+            return False
 
     # iscouler
     # def is_couler(self):

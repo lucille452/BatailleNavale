@@ -1,5 +1,5 @@
 from Navire import Navire
-from Grille import Grille, Type
+from Grille import Grille
 
 
 class Joueur:

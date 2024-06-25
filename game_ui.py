@@ -24,8 +24,8 @@ class BatailleNavale:
         self.orientation = "horizontal"  # Orientation par défaut
 
         # Création des grilles visuelles
-        self.grille_tirs = GrilleFront(self.master, "Tirs sur l'adversaire", 0, self.on_button_click)
-        self.grille_navires_joueur = GrilleFront(self.master, "Navires du joueur", 1, self.on_button_click)
+        self.grille_ia = GrilleFront(self.master, "Tirs sur l'adversaire", 0, self.on_button_click)
+        self.grille_joueur = GrilleFront(self.master, "Navires du joueur", 1, self.on_button_click)
 
         # Création des joueurs / Grilles / Navires back
         game = Game()
@@ -65,9 +65,9 @@ class BatailleNavale:
         self.navire_var.set('')
 
     def on_button_click(self, grille, row, col):
-        if self.place_navires_mode and grille == self.grille_navires_joueur:
+        if self.place_navires_mode and grille == self.grille_joueur:
             self.place_navire(grille, row, col)
-        elif grille == self.grille_tirs:
+        elif grille == self.grille_ia:
             self.tirer(row, col)
 
     def place_navire(self, grille, row, col):
@@ -100,8 +100,9 @@ class BatailleNavale:
             return
 
         self.tirs_effectues.append((row, col))
-        button = self.grille_tirs.buttons[row][col]
-        if (row, col) in self.navires_places:
+        button = self.grille_ia.buttons[row][col]
+        if self.ia.grille.is_touche(row, col):
+            self.ia.grille.set_touche()
             button.config(bg="red")
             self.tirs_reussis += 1
             self.tirs_reussis_label.config(text=f"Tirs réussis: {self.tirs_reussis}")
