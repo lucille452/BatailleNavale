@@ -11,6 +11,7 @@ class Navire:
     taille = 0
     etat = Etat.PLACER
     nbr_toucher = 0
+    positions = []
 
     def __init__(self, taille):
         self.taille = taille
@@ -26,3 +27,6 @@ class Navire:
 
     def get_taille(self):
         return self.taille
+
+    def add_position(self, position):
+        self.positions.append(position)

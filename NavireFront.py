@@ -20,6 +20,3 @@ class NavireFront:
         else:  # Vertical
             return all(0 <= row + i < 10 for i in range(self.taille))
 
-    def coule(self, tirs_effectues):
-        return all(pos in tirs_effectues for pos in self.positions)
-
