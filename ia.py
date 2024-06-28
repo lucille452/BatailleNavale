@@ -66,7 +66,8 @@ class IA:
 
     # Enregistre chaque mouvement et son résultat dans un DataFrame pour analyse ultérieure.
     def update_history(self, move, hit):
-        self.df = self.df.append({'game': len(self.df) // 100, 'move': move, 'result': hit}, ignore_index=True)
+        new_row = pd.DataFrame({'game': [len(self.df) // 100], 'move': [move], 'result': [hit]})
+        self.df = pd.concat([self.df, new_row], ignore_index=True)
 
     # Génère un graphique des performances de l'IA au fil des jeux
     def analyze_history(self):

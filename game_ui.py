@@ -14,7 +14,6 @@ class BatailleNavale:
         self.master.title("Bataille Navale")
 
         self.place_navires_mode = True
-        self.place_navires_mode_ia = False
         self.navires_a_placer = [
             NavireFront(5, "Porte-avions (5)"),
             NavireFront(4, "Cuirassé (4)"),
@@ -75,9 +74,6 @@ class BatailleNavale:
     def on_button_click(self, grille, row, col):
         if self.place_navires_mode and grille == self.grille_joueur:
             self.place_navire_joueur(grille, row, col)
-        elif not self.place_navires_mode and self.place_navires_mode_ia:
-            self.place_navires_ia()
-            self.place_navires_mode_ia = False
         elif grille == self.grille_ia:
             self.tir_joueur(row, col)
 
@@ -92,6 +88,9 @@ class BatailleNavale:
                     self.joueur.get_grille().place_navire_vertical(col, row, navire.taille)
                 self.update_grille(grille, self.joueur.get_grille(), navire)
 
+        if len(self.navires_a_placer) == 0:
+            self.place_navires_ia()
+
     def place_navires_ia(self):
         # Exemple d'utilisation de weighted_map pour le placement des navires de l'IA
         for navire in self.ia_joueur.list_navires:
@@ -99,11 +98,11 @@ class BatailleNavale:
             while not placed:
                 row, col = self.ia.guess_random()
                 orientation = random.choice(["horizontal", "vertical"])
-                if self.ia_joueur.grille_navires.placement_valide(row, col, orientation, navire.taille):
+                if navire.placement_valide(row, col, orientation):
                     if orientation == "horizontal":
-                        self.ia_joueur.grille_navires.place_navire_horizontal(row, col, navire.taille)
+                        self.ia_joueur.get_grille().place_navire_horizontal(row, col, navire.taille)
                     else:
-                        self.ia_joueur.grille_navires.place_navire_vertical(col, row, navire.taille)
+                        self.ia_joueur.get_grille().place_navire_vertical(col, row, navire.taille)
                     placed = True
 
     def update_grille(self, grille_front, grille_joueur, navire):
@@ -149,7 +148,7 @@ class BatailleNavale:
 
         if hit:
             self.grille_joueur.update_button(row, col, "red")
-            if self.joueur.est_coule():
+            if self.joueur.is_coule():
                 messagebox.showinfo("Défaite", "L'IA a gagné !")
 
 
