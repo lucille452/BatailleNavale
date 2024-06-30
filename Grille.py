@@ -36,5 +36,25 @@ class Grille:
     def is_couler(self, position_line, position_column):
         for navire in self.navires:
             if (position_line, position_column) in navire.positions:
-                return navire.get_etat() == Etat.COULER
+                # Vérifie si toutes les positions du navire sont touchées
+                for pos in navire.positions:
+                    line, col = pos
+                    if self.grille[line][col] != 2:  # 2 représente une position touchée
+                        return False
+                return True
         return False
+
+    def placement_valide(self, line, start_column, length, orientation):
+        if orientation == 'horizontal':
+            if start_column + length > len(self.grille):
+                return False
+            for col in range(start_column, start_column + length):
+                if self.grille[line][col] != 0:
+                    return False
+        elif orientation == 'vertical':
+            if line + length > len(self.grille):
+                return False
+            for row in range(line, line + length):
+                if self.grille[row][start_column] != 0:
+                    return False
+        return True

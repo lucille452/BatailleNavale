@@ -22,19 +22,21 @@ class BatailleNavale:
             NavireFront(2, "Patrouilleur (2)")
         ]
         self.navires_places = []
+        self.navires_places_ia = []
         self.tirs_effectues = []  # Positions des tirs effectués
+        self.tirs_effectues_ia = []
         self.orientation = "horizontal"  # Orientation par défaut
 
         # Création des grilles visuelles
-        self.grille_ia = GrilleFront(self.master, "Grille navires ia", 0, self.on_button_click)
-        self.grille_joueur = GrilleFront(self.master, "grille Navires du joueur", 1, self.on_button_click)
+        self.grille_ia = GrilleFront(self.master, "Grille navires IA", 0, self.on_button_click)
+        self.grille_joueur = GrilleFront(self.master, "Grille navires du joueur", 1, self.on_button_click)
 
         # Création des joueurs / Grilles / Navires back
         game = Gameb()
         self.ia_joueur = game.get_ia()
         self.joueur = game.get_joueur()
 
-        # Initialisation de l'ia
+        # Initialisation de l'IA
         self.ia = IA(10)
 
         # Création d'un cadre pour afficher les informations sur l'état du jeu
@@ -71,40 +73,59 @@ class BatailleNavale:
         self.navire_combobox['values'] = [navire.nom for navire in self.navires_a_placer]
         self.navire_var.set('')
 
+    # @staticmethod
+    def validate_indices(self, row, col):
+        return 0 <= row < 10 and 0 <= col < 10
+
     def on_button_click(self, grille, row, col):
         if self.place_navires_mode and grille == self.grille_joueur:
             self.place_navire_joueur(grille, row, col)
-        elif grille == self.grille_ia:
+        elif not self.place_navires_mode and grille == self.grille_ia:
             self.tir_joueur(row, col)
 
     def place_navire_joueur(self, grille, row, col):
+        if not self.validate_indices(row, col):
+            messagebox.showinfo("Position invalide", "La position du navire est en dehors des limites.")
+            return
+
         navire_selectionne = self.navire_var.get()
         if navire_selectionne:
             navire = next((navire for navire in self.navires_a_placer if navire.nom == navire_selectionne), None)
-            if navire and navire.placement_valide(row, col, self.orientation_var.get()):
-                if self.orientation_var.get() == 'horizontal':
-                    self.joueur.get_grille().place_navire_horizontal(row, col, navire.taille)
-                elif self.orientation_var.get() == 'vertical':
-                    self.joueur.get_grille().place_navire_vertical(col, row, navire.taille)
-                self.update_grille(grille, self.joueur.get_grille(), navire)
-
-        if len(self.navires_a_placer) == 0:
-            self.place_navires_ia()
+            if navire:
+                if self.joueur.get_grille().placement_valide(row, col, navire.taille, self.orientation_var.get()):
+                    if self.orientation_var.get() == 'horizontal':
+                        self.joueur.get_grille().place_navire_horizontal(row, col, navire.taille)
+                    elif self.orientation_var.get() == 'vertical':
+                        self.joueur.get_grille().place_navire_vertical(col, row, navire.taille)
+                    self.update_grille(grille, self.joueur.get_grille(), navire)
+                    self.navires_a_placer.remove(navire)
+                    self.update_navire_combobox()
+                    if not self.navires_a_placer:
+                        self.place_navires_mode = False
+                        messagebox.showinfo("Fin du Placement", "Tous les navires ont été placés.")
+                        self.place_navires_ia()
+                else:
+                    messagebox.showinfo("Placement invalide", "Le placement du navire est invalide.")
 
     def place_navires_ia(self):
-        # Exemple d'utilisation de weighted_map pour le placement des navires de l'IA
-        for navire in self.ia_joueur.list_navires:
+        for navire in self.ia_joueur.get_list_navires():
             placed = False
-            while not placed:
+            attempts = 0
+            max_attempts = 100  # Limite pour éviter une boucle infinie
+            while not placed and attempts < max_attempts:
                 row, col = self.ia.guess_random()
                 orientation = random.choice(["horizontal", "vertical"])
-                if navire.placement_valide(row, col, orientation):
+                if self.ia_joueur.get_grille().placement_valide(row, col, navire.taille, orientation):
                     if orientation == "horizontal":
                         self.ia_joueur.get_grille().place_navire_horizontal(row, col, navire.taille)
                     else:
                         self.ia_joueur.get_grille().place_navire_vertical(col, row, navire.taille)
                     placed = True
+                attempts += 1
+            if not placed:
+                messagebox.showerror("Erreur", "Impossible de placer tous les navires de l'IA dans les limites.")
 
+    # @staticmethod
     def update_grille(self, grille_front, grille_joueur, navire):
         for row in range(len(grille_joueur.grille)):
             for col in range(len(grille_joueur.grille[row])):
@@ -112,44 +133,50 @@ class BatailleNavale:
                     grille_front.update_button(row, col, "grey")
                     grille_front.disable_button(row, col)
 
-        self.navires_a_placer.remove(navire)
-        self.update_navire_combobox()
-        if not self.navires_a_placer:
-            self.place_navires_mode = False
-            messagebox.showinfo("Fin du Placement", "Tous les navires ont été placés.")
-
     def tir_joueur(self, row, col):
+        if not self.validate_indices(row, col):
+            messagebox.showinfo("Tir", "Position de tir invalide.")
+            return
         if (row, col) in self.tirs_effectues:
             messagebox.showinfo("Tir", "Vous avez déjà tiré sur cette case.")
             return
 
         self.tirs_effectues.append((row, col))
         button = self.grille_ia.buttons[row][col]
-        if self.ia_joueur.grille.is_touche(row, col):
-            self.ia_joueur.grille.set_touche()
+        if self.ia_joueur.get_grille().is_touche(row, col):
+            self.ia_joueur.get_grille().set_touche(row, col)
             button.config(bg="red")
             self.tirs_reussis += 1
             self.tirs_reussis_label.config(text=f"Tirs réussis: {self.tirs_reussis}")
-            if self.ia_joueur.grille.is_couler(row, col):
+            if self.ia_joueur.get_grille().is_couler(row, col):
                 messagebox.showinfo("Tir", "Touché coulé !")
-                self.navires_restants_joueur -= 1
-                self.navires_restants_joueur_label.config(text=f"Tirs réussis: {self.navires_restants_joueur}")
-
+                self.navires_restants_adversaire -= 1
+                self.navires_restants_adversaire_label.config(
+                    text=f"Navires restants (adversaire): {self.navires_restants_adversaire}")
         else:
             button.config(bg="white")
             messagebox.showinfo("Tir", "Manqué !")
+        self.ia.update_shot_map((row, col))
         self.tir_ia()
 
     def tir_ia(self):
-        row, col = self.ia.make_move(hit=False)
-        hit = self.ia_joueur.tirer(row, col)
-        self.ia.update_shot_map((row, col))
-        self.ia.update_history((row, col), hit)
-
-        if hit:
-            self.grille_joueur.update_button(row, col, "red")
-            if self.joueur.is_coule():
-                messagebox.showinfo("Défaite", "L'IA a gagné !")
+        row, col = self.ia.make_move(hit=False)  # L'IA choisit un coup
+        while (row, col) in self.tirs_effectues_ia:
+            row, col = self.ia.make_move(hit=False)
+        self.tirs_effectues_ia.append((row, col))
+        if not self.validate_indices(row, col):
+            return
+        button = self.grille_joueur.buttons[row][col]
+        if self.joueur.get_grille().is_touche(row, col):
+            self.joueur.get_grille().set_touche(row, col)
+            button.config(bg="red")
+            if self.joueur.get_grille().is_couler(row, col):
+                messagebox.showinfo("Tir de l'adversaire", "Votre navire a été coulé !")
+                self.navires_restants_joueur -= 1
+                self.navires_restants_joueur_label.config(
+                    text=f"Navires restants (joueur): {self.navires_restants_joueur}")
+        else:
+            button.config(bg="white")
 
 
 # Point d'entrée principal
