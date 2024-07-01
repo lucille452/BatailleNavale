@@ -6,16 +6,16 @@ class Joueur:
     list_navires = []
 
     def __init__(self):
-        navire1 = Navire(2)
-        navire2 = Navire(3)
-        navire21 = Navire(3)
-        navire3 = Navire(4)
-        navire4 = Navire(5)
-        self.list_navires.append(navire1)
-        self.list_navires.append(navire2)
-        self.list_navires.append(navire21)
-        self.list_navires.append(navire3)
-        self.list_navires.append(navire4)
+        self.navire1 = Navire(2)
+        self.navire2 = Navire(3)
+        self.navire21 = Navire(3)
+        self.navire3 = Navire(4)
+        self.navire4 = Navire(5)
+        self.list_navires.append(self.navire1)
+        self.list_navires.append(self.navire2)
+        self.list_navires.append(self.navire21)
+        self.list_navires.append(self.navire3)
+        self.list_navires.append(self.navire4)
         self.grille = Grille()
 
     def get_grille(self):

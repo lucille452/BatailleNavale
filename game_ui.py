@@ -96,18 +96,25 @@ class BatailleNavale:
                     self.update_grille(grille_front, self.joueur.get_grille())
                     self.navires_a_placer.remove(navire)
                     self.update_navire_combobox()
-                    if not self.navires_a_placer:
-                        self.place_navires_mode = False
-                        messagebox.showinfo("Fin du Placement", "Tous les navires ont été placés.")
-                        self.ia_joueur.get_grille().grille = [[0]*10 for _ in range(10)]
-                        self.place_navires_ia()
-                        print(self.ia_joueur.get_grille().grille)
-                        print(self.joueur.get_grille().grille)
                 else:
                     messagebox.showinfo("Placement invalide", "Le placement du navire est invalide.")
+        if not self.navires_a_placer:
+            self.place_navires_mode = False
+            messagebox.showinfo("Fin du Placement", "Tous les navires ont été placés.")
+            self.ia_joueur.get_grille().grille = [[0] * 10 for _ in range(10)]
+            self.place_navires_ia()
+            print(self.ia_joueur.get_grille().grille)
+            print(self.joueur.get_grille().grille)
 
     def place_navires_ia(self):
-        for navire in self.ia_joueur.get_list_navires():
+        navires_a_placer_ia = [
+            NavireFront(5, "Porte-avions (5)"),
+            NavireFront(4, "Cuirassé (4)"),
+            NavireFront(3, "Destroyer (3)"),
+            NavireFront(3, "Sous-marin (3)"),
+            NavireFront(2, "Patrouilleur (2)")
+        ]
+        for navire in navires_a_placer_ia:
             placed = False
             attempts = 0
             max_attempts = 100  # Limite pour éviter une boucle infinie
