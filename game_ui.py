@@ -166,12 +166,14 @@ class BatailleNavale:
 
     def tir_ia(self):
         row, col = self.ia.make_move(hit=False)  # L'IA choisit un coup
+        while (row, col) in self.tirs_effectues_ia:
+            row, col = self.ia.make_move(hit=False)  # Choisir une nouvelle position si déjà tirée
         self.tirs_effectues_ia.append((row, col))  # Enregistre le tir effectué par l'IA
 
         # Met à jour visuellement la grille du joueur
         button = self.grille_joueur.buttons[row][col]
         hit = self.joueur.get_grille().is_touche(row, col)  # Vérifie si le tir est un succès (touché un navire)
-        button.config(bg="red" if hit else "white")  # Change la couleur du bouton en fonction du succès du tir
+        button.config(bg="red" if hit else "white")   # Change la couleur du bouton en fonction du succès du tir
 
         # Si le tir est un succès
         if hit:
