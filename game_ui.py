@@ -83,11 +83,7 @@ class BatailleNavale:
         elif not self.place_navires_mode and grille == self.grille_ia:
             self.tir_joueur(row, col)
 
-    def place_navire_joueur(self, grille, row, col):
-        if not self.validate_indices(row, col):
-            messagebox.showinfo("Position invalide", "La position du navire est en dehors des limites.")
-            return
-
+    def place_navire_joueur(self, grille_front, row, col):
         navire_selectionne = self.navire_var.get()
         if navire_selectionne:
             navire = next((navire for navire in self.navires_a_placer if navire.nom == navire_selectionne), None)
@@ -97,13 +93,16 @@ class BatailleNavale:
                         self.joueur.get_grille().place_navire_horizontal(row, col, navire.taille)
                     elif self.orientation_var.get() == 'vertical':
                         self.joueur.get_grille().place_navire_vertical(col, row, navire.taille)
-                    self.update_grille(grille, self.joueur.get_grille(), navire)
+                    self.update_grille(grille_front, self.joueur.get_grille())
                     self.navires_a_placer.remove(navire)
                     self.update_navire_combobox()
                     if not self.navires_a_placer:
                         self.place_navires_mode = False
                         messagebox.showinfo("Fin du Placement", "Tous les navires ont été placés.")
+                        self.ia_joueur.get_grille().grille = [[0]*10 for _ in range(10)]
                         self.place_navires_ia()
+                        print(self.ia_joueur.get_grille().grille)
+                        print(self.joueur.get_grille().grille)
                 else:
                     messagebox.showinfo("Placement invalide", "Le placement du navire est invalide.")
 
@@ -125,8 +124,7 @@ class BatailleNavale:
             if not placed:
                 messagebox.showerror("Erreur", "Impossible de placer tous les navires de l'IA dans les limites.")
 
-    # @staticmethod
-    def update_grille(self, grille_front, grille_joueur, navire):
+    def update_grille(self, grille_front, grille_joueur):
         for row in range(len(grille_joueur.grille)):
             for col in range(len(grille_joueur.grille[row])):
                 if grille_joueur.grille[row][col] == 1:
@@ -161,22 +159,28 @@ class BatailleNavale:
 
     def tir_ia(self):
         row, col = self.ia.make_move(hit=False)  # L'IA choisit un coup
-        while (row, col) in self.tirs_effectues_ia:
-            row, col = self.ia.make_move(hit=False)
-        self.tirs_effectues_ia.append((row, col))
-        if not self.validate_indices(row, col):
-            return
+        self.tirs_effectues_ia.append((row, col))  # Enregistre le tir effectué par l'IA
+
+        # Met à jour visuellement la grille du joueur
         button = self.grille_joueur.buttons[row][col]
-        if self.joueur.get_grille().is_touche(row, col):
-            self.joueur.get_grille().set_touche(row, col)
-            button.config(bg="red")
+        hit = self.joueur.get_grille().is_touche(row, col)  # Vérifie si le tir est un succès (touché un navire)
+        button.config(bg="red" if hit else "white")  # Change la couleur du bouton en fonction du succès du tir
+
+        # Si le tir est un succès
+        if hit:
+            self.joueur.get_grille().set_touche(row, col)  # Marque la grille du joueur comme touchée à cette position
             if self.joueur.get_grille().is_couler(row, col):
                 messagebox.showinfo("Tir de l'adversaire", "Votre navire a été coulé !")
                 self.navires_restants_joueur -= 1
                 self.navires_restants_joueur_label.config(
                     text=f"Navires restants (joueur): {self.navires_restants_joueur}")
-        else:
-            button.config(bg="white")
+
+    def is_coule(self, navires_places, row, col):
+        for navire in navires_places:
+            if (row, col) in navire.positions:
+                if navire.coule(self.tirs_effectues if navires_places == self.navires_places_ia else self.tirs_effectues_ia):
+                    return True
+        return False
 
 
 # Point d'entrée principal

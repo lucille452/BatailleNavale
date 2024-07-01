@@ -1,4 +1,4 @@
-from Navire import Navire, Etat
+from Navire import Navire
 
 
 class Grille:

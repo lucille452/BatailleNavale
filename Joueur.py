@@ -3,7 +3,6 @@ from Grille import Grille
 
 
 class Joueur:
-    grille = Grille()
     list_navires = []
 
     def __init__(self):
@@ -17,6 +16,7 @@ class Joueur:
         self.list_navires.append(navire21)
         self.list_navires.append(navire3)
         self.list_navires.append(navire4)
+        self.grille = Grille()
 
     def get_grille(self):
         return self.grille

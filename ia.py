@@ -13,6 +13,7 @@ class IA:
         self.df = pd.DataFrame(columns=['game', 'move', 'result'])
         self.weighted_map = self.create_weighted_map()
         self.shot_map = np.zeros((self.board_size, self.board_size))
+        self.tir = []
 
     # Crée une carte pondérée pour prioriser les bords et les coins du plateau de jeu.
     def create_weighted_map(self):
@@ -30,7 +31,7 @@ class IA:
 
     # Si l'IA n'a pas de cibles, elle fait un mouvement aléatoire. Sinon, elle attaque les cibles adjacentes.
     def make_move(self, hit):
-        if not self.targets:
+        if not self.targets or not hit:
             guess_row, guess_col = self.guess_random()
         else:
             guess_row, guess_col = self.targets.pop()
@@ -49,17 +50,18 @@ class IA:
             guess = random.choice(weighted_moves)
         else:
             guess = random.choice(available_moves)
+        self.tir.append(tuple(guess))
         return tuple(guess)
 
     # Ajoute les cases adjacentes d'un coup réussi à la liste des cibles
     def add_adjacent_targets(self, row, col):
         potential_targets = [(row + 1, col), (row - 1, col), (row, col + 1), (row, col - 1)]
-        self.targets.extend(
-            (r, c) for r, c in potential_targets
-            if 0 <= r < self.board_size and 0 <= c < self.board_size and self.shot_map[r, c] == 0
-        )
+        for r, c in potential_targets:
+            if 0 <= r < self.board_size and 0 <= c < self.board_size and self.shot_map[r, c] == 0:
+                self.targets.append((r, c))
 
     # mettre à jour carte des tirs
+
     def update_shot_map(self, move):
         row, col = move
         self.shot_map[row, col] = 1
@@ -77,11 +79,3 @@ class IA:
         plt.xlabel('Game')
         plt.ylabel('Hits')
         plt.show()
-
-    # fonction pour reinisialisé l'IA entre les parties
-    # def reset(self):
-    # self.targets = []
-    # self.prob_map = np.zeros((self.game.board_size, self.game.board_size))
-    # self.history = np.zeros((self.game.board_size, self.game.board_size))
-    # self.df = pd.DataFrame(columns=['game', 'move', 'result'])
-    # self.weighted_map = self.create_weighted_map()
