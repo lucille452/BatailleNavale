@@ -38,7 +38,7 @@ class IA:
         if hit:
             self.add_adjacent_targets(guess_row, guess_col)
             if self.targets:
-                guess_row, guess_col = self.targets.pop()
+                guess_row, guess_col = self.targets.pop()  # Choisissez une nouvelle cible parmi les cibles adjacentes
 
         return guess_row, guess_col
 
@@ -49,7 +49,6 @@ class IA:
             guess = random.choice(weighted_moves)
         else:
             guess = random.choice(available_moves)
-        self.tir.append(tuple(guess))
         return tuple(guess)
 
     def guess_random2(self):
@@ -66,7 +65,7 @@ class IA:
         for r, c in potential_targets:
             if 0 <= r < self.board_size and 0 <= c < self.board_size and self.shot_map[r, c] == 0:
                 self.targets.append((r, c))
-                self.update_shot_map((r, c))  # Mettre à jour la carte des tirs pour marquer cette case
+                self.update_shot_map((r, c))
 
     def update_shot_map(self, move):
         row, col = move
